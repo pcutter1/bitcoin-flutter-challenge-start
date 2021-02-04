@@ -3,12 +3,18 @@ import 'package:flutter/cupertino.dart';
 import 'coin_data.dart';
 import 'dart:io' show Platform;
 
+
 class PriceScreen extends StatefulWidget {
+
+
   @override
   _PriceScreenState createState() => _PriceScreenState();
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  String currency;
+  String digitalCurrency;
+  String rate;
   String selectedCurrency = 'USD';
 
   DropdownButton<String> androidDropdown() {
@@ -48,12 +54,26 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
-  //TODO: Create a method here called getData() to get the coin data from coin_data.dart
+  void getData() async {
+    var coinData = await CoinData().getCoinData('USD');
+    setState(() {
+      if (coinData == null) {
+        currency = 'Err';
+        digitalCurrency = 'Err';
+        rate = 'Cannot determine rates';
+        return;
+      }
+      double exRate = coinData['rate'];
+      rate = exRate.toStringAsFixed(2);
+      currency = coinData['asset_id_quote'];
+      digitalCurrency = coinData['asset_id_base'];
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    //TODO: Call getData() when the screen loads up.
+    getData();
   }
 
   @override
@@ -77,8 +97,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  //TODO: Update the Text Widget with the live bitcoin data here.
-                  '1 BTC = ? USD',
+                  '1 $digitalCurrency = $rate $currency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
